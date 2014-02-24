@@ -49,6 +49,7 @@ private:
 		MatrixXi &labels,double lambda);
 };
 
+//initialize the model
 StackedAE::StackedAE(int ae1HiddenSize,int ae2HiddenSize,int numClasses)
 {
 	this->ae1HiddenSize = ae1HiddenSize;
@@ -66,6 +67,7 @@ MatrixXd StackedAE::getAe2Theta()
 	return aeTheta2;
 }
 
+//forward calculation
 MatrixXd StackedAE::feedForward(MatrixXd &theta,MatrixXd &b,
 									 MatrixXd data)
 {
@@ -75,10 +77,11 @@ MatrixXd StackedAE::feedForward(MatrixXd &theta,MatrixXd &b,
 	return a2;
 }
 
-
+//predict
 MatrixXi StackedAE::predict(
 		MatrixXd &data)
 {
+	//forward calculation
 	MatrixXd term1 = aeTheta1 * data;
 	MatrixXd z2 = bsxfunPlus(term1,aeB1);
 	MatrixXd a2 = sigmoid(z2);
@@ -118,7 +121,7 @@ MatrixXd StackedAE::softmaxGradient(MatrixXd &x)
 	return grad;
 }
 
-
+//update all parameters
 void StackedAE::updateParameters(MatrixXd &theta1Grad,MatrixXd &theta2Grad,
 						   MatrixXd &b1Grad,MatrixXd &b2Grad,
 						   MatrixXd &softmaxThetaGrad,double alpha)
@@ -130,6 +133,7 @@ void StackedAE::updateParameters(MatrixXd &theta1Grad,MatrixXd &theta2Grad,
 	softMaxTheta -= softmaxThetaGrad * alpha;
 }
 
+//cost function
 double StackedAE::computeCost(MatrixXd &theta1Grad,
 		MatrixXd &b1Grad,MatrixXd &theta2Grad,
 		MatrixXd &b2Grad,MatrixXd &softmaxThetaGrad,
@@ -148,11 +152,12 @@ double StackedAE::computeCost(MatrixXd &theta1Grad,
 	MatrixXd a4 = expMat(z4);
 	MatrixXd a4ColSum = a4.colwise().sum();
 	a4 = bsxfunRDivide(a4,a4ColSum);
-
+	//calculate delta
 	MatrixXd delta4 = a4 - groundTruth;
 	MatrixXd delta3 = (softMaxTheta.transpose() * delta4).cwiseProduct(sigmoidGradient(z3));
 	MatrixXd delta2 = (aeTheta2.transpose() * delta3).cwiseProduct(sigmoidGradient(z2));
 
+	//calculate delta
 	softmaxThetaGrad = (groundTruth - a4) * a3.transpose() * (-1.0 / M) + softMaxTheta * lambda;
 
 	theta2Grad = delta3 * a2.transpose() * (1.0 / M) + aeTheta2 * lambda;
@@ -160,6 +165,7 @@ double StackedAE::computeCost(MatrixXd &theta1Grad,
 	theta1Grad = delta2 * data.transpose() * (1.0 / M) + aeTheta1 * lambda;
 	b1Grad = delta2.rowwise().sum() * (1.0 / M);
 
+	//compute cost
 	double cost = (-1.0 / M) * (groundTruth.cwiseProduct(logMat(a4))).array().sum()
 		+ lambda / 2.0 * softMaxTheta.array().square().sum()
 		+ lambda / 2.0 * aeTheta1.array().square().sum()
@@ -168,6 +174,7 @@ double StackedAE::computeCost(MatrixXd &theta1Grad,
 	return cost;
 }
 
+//fine tune the model
 void StackedAE::fineTune(MatrixXd &data,MatrixXi &labels,
 				   double lambda,double alpha,int maxIter,int batchSize)
 {
@@ -212,6 +219,7 @@ void StackedAE::fineTune(MatrixXd &data,MatrixXi &labels,
 	}
 }
 
+//pretrain the model
 void StackedAE::preTrain(MatrixXd &data,MatrixXi &labels,
 		double lambda[],double alpha[],int miniBatchSize[],
 		int maxIter[],AE_TYPE aeType,double noiseRatio[],
@@ -222,9 +230,11 @@ void StackedAE::preTrain(MatrixXd &data,MatrixXi &labels,
 	inputSize = ndim;
 	if(aeType == SPARSE_AE)
 	{
+		//stacked sparse autoencoders
 		cout << "PreTraining with sparse autoencoder ..." << endl;
 		SAE ae1(ndim,ae1HiddenSize);
 		cout << "PreTraining ae1 ..." << endl;
+		//train the first sae
 		ae1.train(data,lambda[0],alpha[0],beta[0],
 			sparsityParam[0],maxIter[0],miniBatchSize[0]);
 
@@ -234,7 +244,7 @@ void StackedAE::preTrain(MatrixXd &data,MatrixXi &labels,
 		MatrixXd b1 = ae1.getBias();
 		aeB1.resize(b1.rows(),b1.cols());
 		aeB1 = b1;
-
+		//train the second sae
 		MatrixXd ae1Features = feedForward(aeTheta1,aeB1,data);
 		SAE ae2(ae1HiddenSize,ae2HiddenSize);
 		cout << "PreTraining ae2 ..." << endl;
@@ -247,6 +257,7 @@ void StackedAE::preTrain(MatrixXd &data,MatrixXi &labels,
 		MatrixXd b2 = ae2.getBias();
 		aeB2.resize(b2.rows(),b2.cols());
 		aeB2 = b2;
+		//train the softmax regression
 		MatrixXd ae2Features = feedForward(aeTheta2,aeB2,ae1Features);
 		cout << "PreTraining softmax ..." << endl;
 		SoftMax softmax(ae2HiddenSize,numClasses);
@@ -257,7 +268,9 @@ void StackedAE::preTrain(MatrixXd &data,MatrixXi &labels,
 	}
 	else if(aeType == DENOISING_AE)
 	{
+		//stacked denoising autoencoders
 		cout << "PreTraining with denoising autoencoder ..." << endl;
+		//train the first denoising autoencoder
 		DAE ae1(ndim,ae1HiddenSize);
 		cout << "PreTraining ae1 ..." << endl;
 		ae1.train(data,noiseRatio[0],alpha[0],maxIter[0],miniBatchSize[0]);
@@ -269,6 +282,7 @@ void StackedAE::preTrain(MatrixXd &data,MatrixXi &labels,
 		aeB1.resize(b1.rows(),b1.cols());
 		aeB1 = b1;
 
+		//train the second denoising autoencoder
 		MatrixXd ae1Features = feedForward(aeTheta1,aeB1,data);
 		DAE ae2(ae1HiddenSize,ae2HiddenSize);
 		cout << "PreTraining ae2 ..." << endl;
@@ -280,6 +294,7 @@ void StackedAE::preTrain(MatrixXd &data,MatrixXi &labels,
 		MatrixXd b2 = ae2.getBias();
 		aeB2.resize(b2.rows(),b2.cols());
 		aeB2 = b2;
+		//train the softmax regression
 		MatrixXd ae2Features = feedForward(aeTheta2,aeB2,ae1Features);
 		cout << "PreTraining softmax ..." << endl;
 		SoftMax softmax(ae2HiddenSize,numClasses);

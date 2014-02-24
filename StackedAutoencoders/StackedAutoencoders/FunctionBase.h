@@ -60,6 +60,7 @@ FunctionBase::FunctionBase()
 #endif
 }
 
+//calculate m minus broadcasted x 
 MatrixXd FunctionBase::bsxfunMinus(MatrixXd &m,MatrixXd &x)
 {
 	MatrixXd r = m;
@@ -74,6 +75,7 @@ MatrixXd FunctionBase::bsxfunMinus(MatrixXd &m,MatrixXd &x)
 	return m - r;
 }
 
+//calculate m right divide broadcasted x 
 MatrixXd FunctionBase::bsxfunRDivide(MatrixXd &m,MatrixXd &x)
 {
 	MatrixXd r = m;
@@ -88,6 +90,7 @@ MatrixXd FunctionBase::bsxfunRDivide(MatrixXd &m,MatrixXd &x)
 	return m.cwiseQuotient(r);
 }
 
+//calculate m plus broadcasted x 
 MatrixXd FunctionBase::bsxfunPlus(MatrixXd &m,MatrixXd &x)
 {
 	MatrixXd r = m;
@@ -102,6 +105,7 @@ MatrixXd FunctionBase::bsxfunPlus(MatrixXd &m,MatrixXd &x)
 	return m + r;
 }
 
+//The gradient of sigmoid function
 MatrixXd FunctionBase::sigmoidGradient(MatrixXd &z)
 {
 	//return sigmoid(z) .* (1 - sigmoid(z))
@@ -118,11 +122,13 @@ MatrixXd FunctionBase::sigmoid(MatrixXd &z)
 	return z.unaryExpr(ptr_fun(sigmoidScalar));
 }
 
+//component wise sqrt function
 MatrixXd FunctionBase::sqrtMat(MatrixXd &z)
 {
 	return z.unaryExpr(ptr_fun(sqrtScalar));
 }
 
+//return binary code of labels
 MatrixXd FunctionBase::binaryCols(MatrixXi &labels,int numOfClasses)
 {
 	// return binary code of labels
@@ -151,6 +157,7 @@ MatrixXd FunctionBase::logMat(MatrixXd &z)
 	return z.unaryExpr(ptr_fun(logScalar));
 }
 
+//calculate the similarity of two matrix
 double FunctionBase::calcAccurancy(MatrixXi &pred,MatrixXi &labels)
 {
 	int numOfExamples = pred.rows();

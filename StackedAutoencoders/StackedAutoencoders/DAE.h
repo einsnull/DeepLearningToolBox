@@ -63,6 +63,7 @@ MatrixXd DAE::getBias()
 	return b1;
 }
 
+//Add some noise to the input
 MatrixXd DAE::noiseInput(MatrixXd &z,double noiseRatio)
 {
 	MatrixXd result(z.rows(),z.cols());
@@ -116,9 +117,9 @@ double DAE::computeCost(
 	double cost = 0;
 
 	int numOfExamples = data.cols();
-
-	MatrixXd a1 = noiseData;
 	
+	//Forward calculation 
+	MatrixXd a1 = noiseData;
 	MatrixXd z2 = theta1 * noiseData + b1.replicate(1,numOfExamples);
 	MatrixXd a2 = sigmoid(z2);
 	MatrixXd z3 = theta2 * a2 + b2.replicate(1,numOfExamples);
@@ -171,6 +172,7 @@ void DAE::miniBatchSGD(
 		// compute the cost
 		for(int j = 0;j < numBatches; j++)
 		{
+			//get mini batch
 			miniTrainData = trainData.middleCols(j * batchSize,batchSize);
 			miniNoiseData = noiseData.middleCols(j * batchSize,batchSize);
 			J += computeCost(miniTrainData,miniNoiseData,theta1Grad,theta2Grad,
@@ -181,11 +183,12 @@ void DAE::miniBatchSGD(
 				cout << "Too few training examples!"  << endl; 
 			}
 #endif
-
+			//early stopping
 			if(fabs(J) < 0.001)
 			{
 				break;
 			}
+			//update parameters via gradients
 			updateParameters(theta1Grad,theta2Grad,b1Grad,b2Grad,alpha);
 		}
 		J = J / numBatches;
@@ -209,8 +212,9 @@ void DAE::train(
 #endif
 		return;
 	}
+	//Add some noise to the input dataset
 	MatrixXd noiseData = noiseInput(trainData,noiseRatio);
-	
+	//Train the model with mini batch stochastic gradient descent
 	miniBatchSGD(trainData,noiseData,alpha,maxIter,miniBatchSize);
 }
 
@@ -224,7 +228,9 @@ bool DAE::saveModel(char *szFileName)
 		return false;
 	}
 	int i,j;
+	//save model size
 	ofs << inputSize << " " << hiddenSize << endl;
+	//save parameters
 	for(i = 0; i < theta1.rows(); i++)
 	{
 		for(j = 0;j < theta1.cols(); j++)
@@ -268,13 +274,14 @@ bool DAE::loadModel(char *szFileName)
 	{
 		return false;
 	}
+	//load model size
 	ifs >> this -> inputSize >> this -> hiddenSize;
 	int i,j;
 	theta1.resize(this->hiddenSize,this->inputSize);
 	theta2.resize(this->inputSize,this->hiddenSize);
 	b1.resize(1,hiddenSize);
 	b2.resize(1,inputSize);
-
+	//load parameters
 	for(i = 0; i < theta1.rows(); i++)
 	{
 		for(j = 0;j < theta1.cols(); j++)

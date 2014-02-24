@@ -31,6 +31,7 @@ private:
 		double lambda,double alpha,int maxIter,int batchSize);
 };
 
+//initialize the model
 SoftMax::SoftMax(int inputSize,int numClasses)
 {
 	this ->inputSize = inputSize;
@@ -43,9 +44,10 @@ MatrixXd SoftMax::getTheta()
 	return theta;
 }
 
+//random initialize the weight
 MatrixXd SoftMax::randomInitialize(int lIn,int lOut)
 {
-	//random initialize the weight
+	//Random initialize the weight in a specific range
 	int i,j;
 	double epsilon = sqrt(6.0/(lIn + lOut + 1));
 	MatrixXd result(lIn,lOut);
@@ -60,6 +62,7 @@ MatrixXd SoftMax::randomInitialize(int lIn,int lOut)
 	return result;
 }
 
+//Predict
 MatrixXi SoftMax::predict(MatrixXd &data)
 {
 	//cout << theta.rows() << " " << theta.cols() << endl;
@@ -86,25 +89,26 @@ MatrixXi SoftMax::predict(MatrixXd &data)
 	return pred;
 }
 
+//cost function
 double SoftMax::computeCost(double lambda,MatrixXd &data,
 							MatrixXi &labels,MatrixXd & thetaGrad)
 {
 	int numCases = data.cols();
 	MatrixXd groundTruth = binaryCols(labels,numClasses);
-	//cout << theta.rows() << " " << theta.cols() << endl;
-	//cout << data.rows() << " " << data.cols() << endl;
+	//
 	MatrixXd M = theta * data;
 	MatrixXd maxM = M.colwise().maxCoeff();
-	//cout << maxM << endl;
+
 	M = bsxfunMinus(M,maxM);
 	MatrixXd expM = expMat(M);
-	//cout << expM.rows() << " " << expM.cols() << endl;
+	
 	MatrixXd tmp1 = (expM.colwise().sum()).replicate(numClasses,1);
-	//cout << tmp1.rows() << " " << tmp1.cols() << endl;
+
 	MatrixXd p = expM.cwiseQuotient(tmp1);
+	//compute cost
 	double cost = (groundTruth.cwiseProduct(logMat(p))).sum() * (-1.0 / numCases)
 		+ (lambda / 2.0) * theta.array().square().sum();
-	
+	//compute the gradient of theta
 	thetaGrad = (groundTruth - p) * data.transpose() * (-1.0 / numCases)
 		+ theta * lambda;
 	return cost;
@@ -152,6 +156,7 @@ void SoftMax::miniBatchSGD(MatrixXd &trainingData,MatrixXi &labels,double lambda
 	}
 }
 
+//train the model
 void SoftMax::train(MatrixXd &data,MatrixXi &labels,
 					double lambda,double alpha,
 					int maxIter,int miniBatchSize)

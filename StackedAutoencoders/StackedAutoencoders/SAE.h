@@ -101,14 +101,16 @@ double SAE::computeCost(
 
 	int numOfExamples = data.cols();
 
+	//forward calculation
 	MatrixXd a1 = data;
-	
 	MatrixXd z2 = theta1 * data + b1.replicate(1,numOfExamples);
 	MatrixXd a2 = sigmoid(z2);
 	MatrixXd z3 = theta2 * a2 + b2.replicate(1,numOfExamples);
 	MatrixXd a3 = sigmoid(z3);
 	
+	//sum of hidden unit output over the dataset
 	MatrixXd rho = a2.rowwise().sum() * (1.0 / (double)numOfExamples);
+	//sparsity parameter
 	double sp = sparsityParam;
 	MatrixXd term1 = MatrixXd::Ones(rho.rows(),rho.cols()) - rho;
 	MatrixXd spDelta = reciprocal(term1) * (1.0 - sp)
@@ -175,6 +177,7 @@ void SAE::miniBatchSGD(
 			{
 				break;
 			}
+			//update parameters with gradients
 			updateParameters(theta1Grad,theta2Grad,b1Grad,b2Grad,alpha);
 		}
 		J = J / numBatches;
@@ -198,6 +201,7 @@ void SAE::train(
 #endif
 		return;
 	}
+	//train the model with mini batch gradient descent
 	miniBatchSGD(trainData,lambda,alpha,maxIter,miniBatchSize,beta,sp);
 }
 
