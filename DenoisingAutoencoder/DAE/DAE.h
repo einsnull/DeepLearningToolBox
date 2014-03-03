@@ -1,3 +1,4 @@
+//training data:nDim * nExamples
 #pragma once
 #include <Eigen/Dense>
 #include <ctime>

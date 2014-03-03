@@ -1,3 +1,4 @@
+//training data:nDim * nExamples
 #include <windows.h>
 #include <iostream>
 #include "dataAndImage.h"

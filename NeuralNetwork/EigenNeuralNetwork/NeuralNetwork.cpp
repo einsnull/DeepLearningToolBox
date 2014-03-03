@@ -1,3 +1,4 @@
+//training data:nExamples * ndim
 #include <iostream>
 #include "bpnn.h"
 #include "getConfig.h"
@@ -35,7 +36,6 @@ int main()
 	int input = 1260;
 	int hidden = 10;
 	int output = 14;
-	
 	MatrixXd trainData(n,input);
 	MatrixXi label(n,1);
 	MatrixXd testData(n,input);

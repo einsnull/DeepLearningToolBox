@@ -1,3 +1,4 @@
+//training data:nDim * nExamples
 #include <iostream>
 #include "ca.h"
 #include <opencv2/opencv.hpp>

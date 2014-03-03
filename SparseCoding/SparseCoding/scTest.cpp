@@ -1,3 +1,4 @@
+//training data:nDim * nExamples
 /*拓扑稀疏编码还没完成，非拓扑情形下参数还有待调整*/
 #include <iostream>
 #include <Eigen/Dense>

@@ -1,3 +1,4 @@
+//training data:nDim * nExamples
 #include <iostream>
 #include <fstream>
 #include <Eigen/Dense>

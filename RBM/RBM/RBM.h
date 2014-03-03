@@ -1,3 +1,4 @@
+//training data:nExamples * ndim
 #include <iostream>
 #include <Eigen/Dense>
 #include "FunctionBase.h"

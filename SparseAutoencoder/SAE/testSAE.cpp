@@ -1,3 +1,4 @@
+//training data:nDim * nExamples
 #include "dataAndImage.h"
 #include "SAE.h"
 #include "cmath"

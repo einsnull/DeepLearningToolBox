@@ -1,3 +1,5 @@
+//training data:nDim * nExamples
+#pragma once
 #include <Eigen/Dense>
 #include "FunctionBase.h"
 using namespace Eigen;

@@ -1,3 +1,4 @@
+//training data:nExamples * ndim
 #include <iostream>
 #include "RBM.h"
 #include "dataAndImage.h"

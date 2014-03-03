@@ -1,3 +1,4 @@
+//training data:nDim * nExamples
 #include "SAE.h"
 #include "DAE.h"
 #include "FunctionBase.h"

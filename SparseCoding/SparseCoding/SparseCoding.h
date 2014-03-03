@@ -1,3 +1,4 @@
+//training data:nDim * nExamples
 #include "FunctionBase.h"
 #include "dataAndImage.h"
 #include <ctime>
