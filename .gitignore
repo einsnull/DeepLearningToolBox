@@ -213,3 +213,11 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+RBM/RBM/mnist/t10k-labels-idx1-ubyte
+RBM/RBM/mnist/train-images-idx3-ubyte.gz
+RBM/RBM/mnist/train-labels-idx1-ubyte.gz
+RBM/RBM/mnist/train-labels-idx1-ubyte
+RBM/RBM/mnist/train-images-idx3-ubyte
+RBM/RBM/mnist/t10k-labels-idx1-ubyte.gz
+RBM/RBM/mnist/t10k-images-idx3-ubyte.gz
+RBM/RBM/mnist/t10k-images-idx3-ubyte
