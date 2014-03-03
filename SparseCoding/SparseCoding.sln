@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SparseCoding", "SparseCoding\SparseCoding.vcxproj", "{DC911FB5-7347-40AF-A5DB-832643DD5956}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DC911FB5-7347-40AF-A5DB-832643DD5956}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DC911FB5-7347-40AF-A5DB-832643DD5956}.Debug|Win32.Build.0 = Debug|Win32
+		{DC911FB5-7347-40AF-A5DB-832643DD5956}.Release|Win32.ActiveCfg = Release|Win32
+		{DC911FB5-7347-40AF-A5DB-832643DD5956}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
