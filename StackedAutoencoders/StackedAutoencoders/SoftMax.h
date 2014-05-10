@@ -67,20 +67,17 @@ MatrixXi SoftMax::predict(MatrixXd &data)
 {
 	//cout << theta.rows() << " " << theta.cols() << endl;
 	//cout << data.rows() << " " << data.cols() << endl;
-	MatrixXd M = theta * data;
-	MatrixXd expM = expMat(M);
-	MatrixXd expMColSum = expM.colwise().sum();
-	MatrixXd mrd = bsxfunRDivide(expM,expMColSum);
-	MatrixXi pred(1,mrd.cols());
-	for(int i = 0; i < mrd.cols(); i++)
+	MatrixXd m = theta * data;
+	MatrixXi pred(1,m.rows());
+	for(int i = 0; i < m.cols(); i++)
 	{
 		double max = 0;
 		int idx = 0;
-		for(int j = 0; j < mrd.rows();j++)
+		for(int j = 0; j < m.rows();j++)
 		{
-			if(mrd(j,i) > max)
+			if(m(j,i) > max)
 			{
-				max = mrd(j,i);
+				max = m(j,i);
 				idx = j;
 			}
 		}
