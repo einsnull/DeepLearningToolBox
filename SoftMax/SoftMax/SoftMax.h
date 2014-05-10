@@ -1,4 +1,3 @@
-//training data:nDim * nExamples
 #pragma once
 #include <Eigen/Dense>
 #include <ctime>
@@ -8,15 +7,14 @@ using namespace Eigen;
 //trainingData  ndim * numOfExamples
 //labels numOfExamples * 1
 
-class SoftMax
+class Softmax
 {
-public:
-	MatrixXd theta;
 private:
+	MatrixXd theta;
 	int inputSize;
 	int numClasses;
 public:
-	SoftMax(int inputSize,int numClasses);
+	Softmax(int inputSize,int numClasses);
 	MatrixXi predict(MatrixXd &data);
 	void train(MatrixXd &data,MatrixXi &labels,
 		double lambda,double alpha,
@@ -24,6 +22,7 @@ public:
 	double calcAccurancy(MatrixXi &pred,MatrixXi &labels);
 	bool saveModel(char *szFileName);
 	bool loadModel(char *szFileName);
+	MatrixXd getTheta();
 private:
 	MatrixXd binaryCols(MatrixXi &labels,int numOfClasses);
 	MatrixXd expMat(MatrixXd &z);
@@ -33,11 +32,11 @@ private:
 		MatrixXi &labels,MatrixXd &thetaGrad);
 	MatrixXd bsxfunMinus(MatrixXd &m,MatrixXd &x);
 	MatrixXd bsxfunRDivide(MatrixXd &m,MatrixXd &x);
-	void SoftMax::miniBatchSGD(MatrixXd &trainData,MatrixXi &labels,
+	void Softmax::miniBatchSGD(MatrixXd &trainData,MatrixXi &labels,
 		double lambda,double alpha,int maxIter,int batchSize);
 };
 
-MatrixXd SoftMax::bsxfunMinus(MatrixXd &m,MatrixXd &x)
+MatrixXd Softmax::bsxfunMinus(MatrixXd &m,MatrixXd &x)
 {
 	MatrixXd result = m;
 	if(x.rows() == 1)
@@ -57,7 +56,7 @@ MatrixXd SoftMax::bsxfunMinus(MatrixXd &m,MatrixXd &x)
 	return result;
 }
 
-MatrixXd SoftMax::bsxfunRDivide(MatrixXd &m,MatrixXd &x)
+MatrixXd Softmax::bsxfunRDivide(MatrixXd &m,MatrixXd &x)
 {
 	MatrixXd result = m;
 	if(x.rows() == 1)
@@ -77,14 +76,14 @@ MatrixXd SoftMax::bsxfunRDivide(MatrixXd &m,MatrixXd &x)
 	return result;
 }
 
-SoftMax::SoftMax(int inputSize,int numClasses)
+Softmax::Softmax(int inputSize,int numClasses)
 {
 	this ->inputSize = inputSize;
 	this ->numClasses = numClasses;
 	theta = randomInitialize(numClasses,inputSize);
 }
 
-MatrixXd SoftMax::randomInitialize(int lIn,int lOut)
+MatrixXd Softmax::randomInitialize(int lIn,int lOut)
 {
 	//random initialize the weight
 	int i,j;
@@ -102,7 +101,7 @@ MatrixXd SoftMax::randomInitialize(int lIn,int lOut)
 }
 
 //component wise log function
-MatrixXd SoftMax::logMat(MatrixXd &z)
+MatrixXd Softmax::logMat(MatrixXd &z)
 {
 	MatrixXd result(z.rows(),z.cols());
 	for(int i = 0;i < z.rows();i++)
@@ -116,7 +115,7 @@ MatrixXd SoftMax::logMat(MatrixXd &z)
 }
 
 //component wise exp function
-MatrixXd SoftMax::expMat(MatrixXd &z)
+MatrixXd Softmax::expMat(MatrixXd &z)
 {
 	MatrixXd result(z.rows(),z.cols());
 	for(int i = 0;i < z.rows();i++)
@@ -130,7 +129,7 @@ MatrixXd SoftMax::expMat(MatrixXd &z)
 }
 
 //set targets to binary code
-MatrixXd SoftMax::binaryCols(MatrixXi &labels,int numOfClasses)
+MatrixXd Softmax::binaryCols(MatrixXi &labels,int numOfClasses)
 {
 	// return binary code of labels
 	//eye function
@@ -146,24 +145,21 @@ MatrixXd SoftMax::binaryCols(MatrixXi &labels,int numOfClasses)
 	return result;
 }
 
-MatrixXi SoftMax::predict(MatrixXd &data)
+MatrixXi Softmax::predict(MatrixXd &data)
 {
 	//cout << theta.rows() << " " << theta.cols() << endl;
 	//cout << data.rows() << " " << data.cols() << endl;
-	MatrixXd M = theta * data;
-	MatrixXd expM = expMat(M);
-	MatrixXd expMColSum = expM.colwise().sum();
-	MatrixXd mrd = bsxfunRDivide(expM,expMColSum);
-	MatrixXi pred(1,mrd.cols());
-	for(int i = 0; i < mrd.cols(); i++)
+	MatrixXd m = theta * data;
+	MatrixXi pred(1,m.rows());
+	for(int i = 0; i < m.cols(); i++)
 	{
 		double max = 0;
 		int idx = 0;
-		for(int j = 0; j < mrd.rows();j++)
+		for(int j = 0; j < m.rows();j++)
 		{
-			if(mrd(j,i) > max)
+			if(m(j,i) > max)
 			{
-				max = mrd(j,i);
+				max = m(j,i);
 				idx = j;
 			}
 		}
@@ -172,7 +168,7 @@ MatrixXi SoftMax::predict(MatrixXd &data)
 	return pred;
 }
 
-double SoftMax::computeCost(double lambda,MatrixXd &data,
+double Softmax::computeCost(double lambda,MatrixXd &data,
 							MatrixXi &labels,MatrixXd & thetaGrad)
 {
 	int numCases = data.cols();
@@ -196,7 +192,7 @@ double SoftMax::computeCost(double lambda,MatrixXd &data,
 }
 
 //mini batch stochastic gradient descent
-void SoftMax::miniBatchSGD(MatrixXd &trainingData,MatrixXi &labels,double lambda,
+void Softmax::miniBatchSGD(MatrixXd &trainingData,MatrixXi &labels,double lambda,
 						   double alpha,int maxIter,int batchSize)
 {
 	//get the binary code of labels
@@ -237,14 +233,14 @@ void SoftMax::miniBatchSGD(MatrixXd &trainingData,MatrixXi &labels,double lambda
 	}
 }
 
-void SoftMax::train(MatrixXd &data,MatrixXi &labels,
+void Softmax::train(MatrixXd &data,MatrixXi &labels,
 					double lambda,double alpha,
 					int maxIter,int miniBatchSize)
 {
 	miniBatchSGD(data,labels,lambda,alpha,maxIter,miniBatchSize);
 }
 
-double SoftMax::calcAccurancy(MatrixXi &pred,MatrixXi &labels)
+double Softmax::calcAccurancy(MatrixXi &pred,MatrixXi &labels)
 {
 	int numOfExamples = pred.rows();
 	double sum = 0;
@@ -259,7 +255,7 @@ double SoftMax::calcAccurancy(MatrixXi &pred,MatrixXi &labels)
 }
 
 //save model to file
-bool SoftMax::saveModel(char *szFileName)
+bool Softmax::saveModel(char *szFileName)
 {
 	ofstream ofs(szFileName);
 	if(!ofs)
@@ -280,7 +276,7 @@ bool SoftMax::saveModel(char *szFileName)
 }
 
 //load model from file
-bool SoftMax::loadModel(char *szFileName)
+bool Softmax::loadModel(char *szFileName)
 {
 	ifstream ifs(szFileName);
 	if(!ifs)
@@ -305,4 +301,9 @@ bool SoftMax::loadModel(char *szFileName)
 	}
 	ifs.close();
 	return true;
+}
+
+MatrixXd Softmax::getTheta()
+{
+	return theta;
 }
