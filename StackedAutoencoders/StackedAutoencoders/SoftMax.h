@@ -8,14 +8,14 @@ using namespace std;
 //trainingData  ndim * numOfExamples
 //labels numOfExamples * 1
 
-class SoftMax : public FunctionBase
+class Softmax : public FunctionBase
 {
 private:
 	MatrixXd theta;
 	int inputSize;
 	int numClasses;
 public:
-	SoftMax(int inputSize,int numClasses);
+	Softmax(int inputSize,int numClasses);
 	MatrixXi predict(MatrixXd &data);
 	void train(MatrixXd &data,MatrixXi &labels,
 		double lambda,double alpha,
@@ -27,25 +27,25 @@ private:
 	MatrixXd randomInitialize(int lIn,int lOut);
 	double computeCost(double lambda,MatrixXd &data,
 		MatrixXi &labels,MatrixXd &thetaGrad);
-	void SoftMax::miniBatchSGD(MatrixXd &trainData,MatrixXi &labels,
+	void Softmax::miniBatchSGD(MatrixXd &trainData,MatrixXi &labels,
 		double lambda,double alpha,int maxIter,int batchSize);
 };
 
 //initialize the model
-SoftMax::SoftMax(int inputSize,int numClasses)
+Softmax::Softmax(int inputSize,int numClasses)
 {
 	this ->inputSize = inputSize;
 	this ->numClasses = numClasses;
 	theta = randomInitialize(numClasses,inputSize);
 }
 
-MatrixXd SoftMax::getTheta()
+MatrixXd Softmax::getTheta()
 {
 	return theta;
 }
 
 //random initialize the weight
-MatrixXd SoftMax::randomInitialize(int lIn,int lOut)
+MatrixXd Softmax::randomInitialize(int lIn,int lOut)
 {
 	//Random initialize the weight in a specific range
 	int i,j;
@@ -63,7 +63,7 @@ MatrixXd SoftMax::randomInitialize(int lIn,int lOut)
 }
 
 //Predict
-MatrixXi SoftMax::predict(MatrixXd &data)
+MatrixXi Softmax::predict(MatrixXd &data)
 {
 	//cout << theta.rows() << " " << theta.cols() << endl;
 	//cout << data.rows() << " " << data.cols() << endl;
@@ -87,7 +87,7 @@ MatrixXi SoftMax::predict(MatrixXd &data)
 }
 
 //cost function
-double SoftMax::computeCost(double lambda,MatrixXd &data,
+double Softmax::computeCost(double lambda,MatrixXd &data,
 							MatrixXi &labels,MatrixXd & thetaGrad)
 {
 	int numCases = data.cols();
@@ -112,7 +112,7 @@ double SoftMax::computeCost(double lambda,MatrixXd &data,
 }
 
 //mini batch stochastic gradient descent
-void SoftMax::miniBatchSGD(MatrixXd &trainingData,MatrixXi &labels,double lambda,
+void Softmax::miniBatchSGD(MatrixXd &trainingData,MatrixXi &labels,double lambda,
 						   double alpha,int maxIter,int batchSize)
 {
 	//get the binary code of labels
@@ -122,6 +122,10 @@ void SoftMax::miniBatchSGD(MatrixXd &trainingData,MatrixXi &labels,double lambda
 	int iter = 1;
 	int numBatches = trainingData.cols() / batchSize;
 	
+	//test
+	cout << "numBatches: " << numBatches << endl;
+	//end test
+
 	//mini batch stochastic gradient decent
 	for(int i = 0; i < maxIter;i++)
 	{
@@ -129,6 +133,9 @@ void SoftMax::miniBatchSGD(MatrixXd &trainingData,MatrixXi &labels,double lambda
 		// compute the cost
 		for(int j = 0;j < numBatches; j++)
 		{
+			//test
+			cout << i << " " << j << endl;
+			//end test
 			miniTrainingData = trainingData.middleCols(j * batchSize,batchSize);
 			miniLabels = labels.middleRows(j * batchSize,batchSize);
 			J += computeCost(lambda,miniTrainingData,miniLabels,thetaGrad);
@@ -154,7 +161,7 @@ void SoftMax::miniBatchSGD(MatrixXd &trainingData,MatrixXi &labels,double lambda
 }
 
 //train the model
-void SoftMax::train(MatrixXd &data,MatrixXi &labels,
+void Softmax::train(MatrixXd &data,MatrixXi &labels,
 					double lambda,double alpha,
 					int maxIter,int miniBatchSize)
 {
@@ -162,7 +169,7 @@ void SoftMax::train(MatrixXd &data,MatrixXi &labels,
 }
 
 //save model to file
-bool SoftMax::saveModel(char *szFileName)
+bool Softmax::saveModel(char *szFileName)
 {
 	ofstream ofs(szFileName);
 	if(!ofs)
@@ -183,7 +190,7 @@ bool SoftMax::saveModel(char *szFileName)
 }
 
 //load model from file
-bool SoftMax::loadModel(char *szFileName)
+bool Softmax::loadModel(char *szFileName)
 {
 	ifstream ifs(szFileName);
 	if(!ifs)
