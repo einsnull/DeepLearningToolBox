@@ -150,7 +150,7 @@ MatrixXi Softmax::predict(MatrixXd &data)
 	//cout << theta.rows() << " " << theta.cols() << endl;
 	//cout << data.rows() << " " << data.cols() << endl;
 	MatrixXd m = theta * data;
-	MatrixXi pred(1,m.rows());
+	MatrixXi pred(m.cols(),1);
 	for(int i = 0; i < m.cols(); i++)
 	{
 		double max = 0;
@@ -163,7 +163,7 @@ MatrixXi Softmax::predict(MatrixXd &data)
 				idx = j;
 			}
 		}
-		pred(0,i) = idx;
+		pred(i,0) = idx;
 	}
 	return pred;
 }
