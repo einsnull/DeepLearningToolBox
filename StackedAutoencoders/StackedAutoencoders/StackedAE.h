@@ -1,4 +1,5 @@
 //training data:nDim * nExamples
+#pragma once
 #include "SAE.h"
 #include "DAE.h"
 #include "FunctionBase.h"
@@ -83,30 +84,37 @@ MatrixXi StackedAE::predict(
 		MatrixXd &data)
 {
 	//forward calculation
+	char str[200] = {0};
+	/*sprintf_s(str,"aetheta1 %d %d; %d %d",aeTheta1.rows(),aeTheta1.cols(),data.rows(),data.cols());
+	MessageBoxA(NULL,str,"",MB_OK);*/
 	MatrixXd term1 = aeTheta1 * data;
 	MatrixXd z2 = bsxfunPlus(term1,aeB1);
 	MatrixXd a2 = sigmoid(z2);
 	MatrixXd term2 = aeTheta2 * a2;
+	/*sprintf_s(str,"aetheta2 %d %d; %d %d",aeTheta2.rows(),aeTheta2.cols(),a2.rows(),a2.cols());
+	MessageBoxA(NULL,str,"",MB_OK);*/
 	MatrixXd z3 = bsxfunPlus(term2,aeB2);
 	MatrixXd a3 = sigmoid(z3);
 	MatrixXd z4 = softMaxTheta * a3;
-	MatrixXd a4 = expMat(z4);
-	MatrixXd a4ColSum = a4.colwise().sum();
-	a4 = bsxfunRDivide(a4,a4ColSum);
-	MatrixXi pred(1,a4.cols());
-	for(int i = 0;i < a4.cols();i++)
+	/*sprintf_s(str,"softmaxTheta %d %d; %d %d",softMaxTheta.rows(),softMaxTheta.cols(),a3.rows(),a3.cols());
+	MessageBoxA(NULL,str,"",MB_OK);*/
+	//char str[200];
+	/*sprintf_s(str,"%d %d",z4.rows(),z4.cols());
+	MessageBoxA(NULL,str,"",MB_OK);*/
+	MatrixXi pred(z4.cols(),1);
+	for(int i = 0;i < z4.cols();i++)
 	{
-		double max = 0;
+		double max = INT_MIN;
 		int idx = 0;
-		for(int j = 0;j < a4.rows();j++)
+		for(int j = 0;j < z4.rows();j++)
 		{
-			if(a4(j,i) > max)
+			if(z4(j,i) > max)
 			{
 				idx = j;
-				max = a4(j,i);
+				max = z4(j,i);
 			}
 		}
-		pred(0,i) = idx;
+		pred(i,0) = idx;
 	}
 	return pred;
 }
@@ -260,8 +268,9 @@ void StackedAE::preTrain(MatrixXd &data,MatrixXi &labels,
 		aeB2 = b2;
 		//train the softmax regression
 		MatrixXd ae2Features = feedForward(aeTheta2,aeB2,ae1Features);
+
 		cout << "PreTraining softmax ..." << endl;
-		SoftMax softmax(ae2HiddenSize,numClasses);
+		Softmax softmax(ae2HiddenSize,numClasses);
 		softmax.train(ae2Features,labels,lambda[2],alpha[2],maxIter[2],miniBatchSize[2]);
 		MatrixXd smTheta = softmax.getTheta();
 		softMaxTheta.resize(smTheta.rows(),smTheta.cols());
@@ -298,7 +307,7 @@ void StackedAE::preTrain(MatrixXd &data,MatrixXi &labels,
 		//train the softmax regression
 		MatrixXd ae2Features = feedForward(aeTheta2,aeB2,ae1Features);
 		cout << "PreTraining softmax ..." << endl;
-		SoftMax softmax(ae2HiddenSize,numClasses);
+		Softmax softmax(ae2HiddenSize,numClasses);
 		softmax.train(ae2Features,labels,lambda[2],alpha[2],maxIter[2],miniBatchSize[2]);
 		MatrixXd smTheta = softmax.getTheta();
 		softMaxTheta.resize(smTheta.rows(),smTheta.cols());
@@ -375,7 +384,7 @@ bool StackedAE::loadModel(char *szFileName)
 	aeTheta2.resize(ae2HiddenSize,ae1HiddenSize);
 	aeB1.resize(ae1HiddenSize,1);
 	aeB2.resize(ae2HiddenSize,1);
-
+	softMaxTheta.resize(numClasses,ae2HiddenSize);
 	for(i = 0; i < aeTheta1.rows(); i++)
 	{
 		for(j = 0;j < aeTheta1.cols(); j++)
