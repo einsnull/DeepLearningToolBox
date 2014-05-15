@@ -12,4 +12,4 @@ The getConfigXXValues functions may not work due to the end of line format of "P
 
 The Deep Neural Network implemented by stacked autoencoders with proper paramters has a classification accuracy of 98% or even better on the mnist dataset(trained on training set and tested on test set).
 
-Copyright Reserved by Qingbiao Miao(einsnull).
+
